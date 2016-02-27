@@ -6,7 +6,7 @@
         col (range (count (first board)))]
     [row col]))
 
-(defn generate-blank-board [rows cols]
+(defn init-board [rows cols]
   (let [initial-square {:revealed?      false
                         :adjacent-mines 0
                         :mine?          false}
@@ -48,6 +48,6 @@
             non-mine-coords)))
 
 (defn generate-board [rows cols num-mines]
-  (-> (generate-blank-board rows cols)
+  (-> (init-board rows cols)
       (add-mines num-mines)
       (update-adjacent-mine-count)))
