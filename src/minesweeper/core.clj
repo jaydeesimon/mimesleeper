@@ -2,14 +2,14 @@
   (:gen-class))
 
 (defn board-coords [board]
-  (for [r (range (count board))
-        c (range (count (first board)))]
-    [r c]))
+  (for [row (range (count board))
+        col (range (count (first board)))]
+    [row col]))
 
 (defn generate-blank-board [rows cols]
-  (let [initial-square {:revealed? false
+  (let [initial-square {:revealed?      false
                         :adjacent-mines 0
-                        :mine? false}
+                        :mine?          false}
         initial-row (vec (take cols (cycle [initial-square])))]
     (vec (for [_ (range rows)]
            initial-row))))
@@ -22,15 +22,14 @@
             rand-coords)))
 
 (defn surrounding-coords [row col]
-  (let [offsets (for [r (range -1 (inc 1))
-                      c (range -1 (inc 1))]
-                  [r c])]
-    (map (fn [[r c]]
-           [(+ r row) (+ c col)])
-         offsets)))
-
-(defn mine? [board row col]
-  (get-in board [row col :mine?]))
+  (let [offsets (for [row (range -1 (inc 1))
+                      col (range -1 (inc 1))]
+                  [row col])]
+    (->> offsets
+         (map (fn [[row' col']]
+                [(+ row' row) (+ col' col)]))
+         (remove (fn [[row' col']]
+                   (and (= row' row) (= col' col)))))))
 
 (defn surrounding-cells [board row col]
   (->> (surrounding-coords row col)
@@ -38,15 +37,17 @@
               {:coord coord :val (get-in board coord)}))
        (filter #(some? (:val %)))))
 
-(defn update-adjacent-mine-vals [board]
+(defn update-adjacent-mine-count [board]
   (let [non-mine-coords (filter #(not (:mine? %))
-                          (board-coords board))]
+                                (board-coords board))]
     (reduce (fn [board [row col]]
-              (let [sc (surrounding-cells board row col)
-                    (filter )]
-                )))))
+              (let [surrounding-cells (surrounding-cells board row col)
+                    surrounding-mines (filter #(get-in % [:val :mine?]) surrounding-cells)]
+                (assoc-in board [row col :adjacent-mines] (count surrounding-mines))))
+            board
+            non-mine-coords)))
 
-(defn touches-mine? [board row col]
-  (some #(= (:val %) :*)
-        (surrounding-cells board row col)))
-
+(defn generate-board [rows cols num-mines]
+  (-> (generate-blank-board rows cols)
+      (add-mines num-mines)
+      (update-adjacent-mine-count)))
