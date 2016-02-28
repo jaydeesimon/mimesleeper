@@ -2,27 +2,37 @@
   (:require [clojure.set :refer [difference]])
   (:gen-class))
 
-(defn board-coords [board]
+(defn board-coords
+  "A list of all of the coordinates of a board in the form [row col]."
+  [board]
   (for [row (range (count board))
         col (range (count (first board)))]
     [row col]))
 
-(defn init-board [rows cols]
-  (let [initial-square {:revealed?      false
-                        :adjacent-mine-count 0
-                        :mine?          false}
+(defn init-board
+  "Initialize a board of size rows, cols."
+  [rows cols]
+  (let [initial-square {:revealed? false
+                        :adjacent-mine-cnt 0
+                        :mine? false}
         initial-row (vec (take cols (cycle [initial-square])))]
     (vec (for [_ (range rows)]
            initial-row))))
 
-(defn add-mines [board num-mines]
+(defn add-mines
+  "Given a board, add mines to random coordinates."
+  [board num-mines]
   (let [rand-coords (take num-mines (shuffle (board-coords board)))]
     (reduce (fn [board [row col]]
               (assoc-in board [row col :mine?] true))
             board
             rand-coords)))
 
-(defn surrounding-coords [row col]
+(defn surrounding-coords
+  "Given a coordinate, return the surrounding coordinates.
+  Note that the coordinates may not exist if you applied
+  them to a board."
+  [row col]
   (let [offsets (for [row (range -1 (inc 1))
                       col (range -1 (inc 1))]
                   [row col])]
@@ -32,28 +42,37 @@
          (map (fn [[row' col']]
                 [(+ row' row) (+ col' col)])))))
 
-(defn surrounding-blocks [board row col]
+(defn surrounding-blocks
+  "Given a board and coordinate, return the surrounding
+  blocks with their coordinate and contents."
+  [board row col]
   (->> (surrounding-coords row col)
        (map (fn [coord]
               {:coord coord :val (get-in board coord)}))
        (filter #(some? (:val %)))))
 
-(defn update-adjacent-mine-count [board]
+(defn update-adjacent-mine-count
+  "For each block in the board, count and set the
+  number of adjacent mines."
+  [board]
   (let [non-mine-coords (filter #(not (:mine? %))
                                 (board-coords board))]
     (reduce (fn [board [row col]]
               (let [surrounding-blocks (surrounding-blocks board row col)
                     surrounding-mines (filter #(get-in % [:val :mine?]) surrounding-blocks)]
-                (assoc-in board [row col :adjacent-mine-count] (count surrounding-mines))))
+                (assoc-in board [row col :adjacent-mine-cnt] (count surrounding-mines))))
             board
             non-mine-coords)))
 
-(defn generate-board [rows cols num-mines]
+(defn generate-board
+  "Generate a board intended for a new game."
+  [rows cols num-mines]
   (-> (init-board rows cols)
       (add-mines num-mines)
       (update-adjacent-mine-count)))
 
 ;; TODO: This defn is a little rough on the eyes.
+;; Make this easier to understand.
 (defn coords-to-reveal
   "Given a starting [row col], recursively find all of the
   related coordinates to reveal."
@@ -63,7 +82,7 @@
     (let [[cur-row cur-col] (first blocks-to-traverse)]
       (if (and (not cur-row) (not cur-col))
         blocks-to-reveal
-        (if (pos? (get-in board [cur-row cur-col :adjacent-mine-count]))
+        (if (pos? (get-in board [cur-row cur-col :adjacent-mine-cnt]))
           (recur (rest blocks-to-traverse) (conj blocks-to-reveal [cur-row cur-col]))
           (let [blocks-to-traverse (concat (rest blocks-to-traverse)
                                            (map :coord (surrounding-blocks board cur-row cur-col)))]
