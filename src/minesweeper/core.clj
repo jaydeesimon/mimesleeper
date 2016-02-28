@@ -1,4 +1,5 @@
 (ns minesweeper.core
+  (:require [clojure.set :refer [difference]])
   (:gen-class))
 
 (defn board-coords [board]
@@ -8,7 +9,7 @@
 
 (defn init-board [rows cols]
   (let [initial-square {:revealed?      false
-                        :adjacent-mines 0
+                        :adjacent-mine-count 0
                         :mine?          false}
         initial-row (vec (take cols (cycle [initial-square])))]
     (vec (for [_ (range rows)]
@@ -17,7 +18,7 @@
 (defn add-mines [board num-mines]
   (let [rand-coords (take num-mines (shuffle (board-coords board)))]
     (reduce (fn [board [row col]]
-              (update-in board [row col :mine?] (constantly true)))
+              (assoc-in board [row col :mine?] true))
             board
             rand-coords)))
 
@@ -26,12 +27,12 @@
                       col (range -1 (inc 1))]
                   [row col])]
     (->> offsets
-         (map (fn [[row' col']]
-                [(+ row' row) (+ col' col)]))
          (remove (fn [[row' col']]
-                   (and (= row' row) (= col' col)))))))
+                   (and (zero? row') (zero? col'))))
+         (map (fn [[row' col']]
+                [(+ row' row) (+ col' col)])))))
 
-(defn surrounding-cells [board row col]
+(defn surrounding-blocks [board row col]
   (->> (surrounding-coords row col)
        (map (fn [coord]
               {:coord coord :val (get-in board coord)}))
@@ -41,9 +42,9 @@
   (let [non-mine-coords (filter #(not (:mine? %))
                                 (board-coords board))]
     (reduce (fn [board [row col]]
-              (let [surrounding-cells (surrounding-cells board row col)
-                    surrounding-mines (filter #(get-in % [:val :mine?]) surrounding-cells)]
-                (assoc-in board [row col :adjacent-mines] (count surrounding-mines))))
+              (let [surrounding-blocks (surrounding-blocks board row col)
+                    surrounding-mines (filter #(get-in % [:val :mine?]) surrounding-blocks)]
+                (assoc-in board [row col :adjacent-mine-count] (count surrounding-mines))))
             board
             non-mine-coords)))
 
@@ -51,3 +52,20 @@
   (-> (init-board rows cols)
       (add-mines num-mines)
       (update-adjacent-mine-count)))
+
+;; TODO: This defn is a little rough on the eyes.
+(defn coords-to-reveal
+  "Given a starting [row col], recursively find all of the
+  related coordinates to reveal."
+  [board row col]
+  (loop [blocks-to-traverse [[row col]]
+         blocks-to-reveal #{}]
+    (let [[cur-row cur-col] (first blocks-to-traverse)]
+      (if (and (not cur-row) (not cur-col))
+        blocks-to-reveal
+        (if (pos? (get-in board [cur-row cur-col :adjacent-mine-count]))
+          (recur (rest blocks-to-traverse) (conj blocks-to-reveal [cur-row cur-col]))
+          (let [blocks-to-traverse (concat (rest blocks-to-traverse)
+                                           (map :coord (surrounding-blocks board cur-row cur-col)))]
+            (recur (vec (difference (set blocks-to-traverse) blocks-to-reveal))
+                   (conj blocks-to-reveal [cur-row cur-col]))))))))
