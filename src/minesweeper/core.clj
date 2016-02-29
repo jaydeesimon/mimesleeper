@@ -55,14 +55,12 @@
   "For each block in the board, count and set the
   number of adjacent mines."
   [board]
-  (let [non-mine-coords (filter #(not (:mine? %))
-                                (board-coords board))]
-    (reduce (fn [board [row col]]
-              (let [surrounding-blocks (surrounding-blocks board row col)
-                    surrounding-mines (filter #(get-in % [:val :mine?]) surrounding-blocks)]
-                (assoc-in board [row col :adjacent-mine-cnt] (count surrounding-mines))))
-            board
-            non-mine-coords)))
+  (reduce (fn [board [row col]]
+            (let [surrounding-blocks (surrounding-blocks board row col)
+                  surrounding-mines (filter #(get-in % [:val :mine?]) surrounding-blocks)]
+              (assoc-in board [row col :adjacent-mine-cnt] (count surrounding-mines))))
+          board
+          (board-coords board)))
 
 (defn generate-board
   "Generate a board intended for a new game."
