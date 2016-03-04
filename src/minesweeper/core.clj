@@ -37,10 +37,10 @@
                       col (range -1 (inc 1))]
                   [row col])]
     (->> offsets
-         (remove (fn [[row' col']]
-                   (and (zero? row') (zero? col'))))
-         (map (fn [[row' col']]
-                [(+ row' row) (+ col' col)])))))
+         (remove (fn [[row-offset col-offset]]
+                   (and (zero? row-offset) (zero? col-offset))))
+         (map (fn [[row-offset col-offset]]
+                [(+ row-offset row) (+ col-offset col)])))))
 
 (defn surrounding-blocks
   "Given a board and coordinate, return the surrounding
