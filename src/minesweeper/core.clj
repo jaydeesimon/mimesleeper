@@ -37,8 +37,7 @@
                       col (range -1 (inc 1))]
                   [row col])]
     (->> offsets
-         (remove (fn [[row-offset col-offset]]
-                   (and (zero? row-offset) (zero? col-offset))))
+         (remove #(= % [0 0]))
          (map (fn [[row-offset col-offset]]
                 [(+ row-offset row) (+ col-offset col)])))))
 
