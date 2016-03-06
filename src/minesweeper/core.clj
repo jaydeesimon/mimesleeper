@@ -19,10 +19,10 @@
 (defn init-board
   "Initialize a board of size rows, cols."
   [rows cols]
-  (let [initial-square {:revealed? false
+  (let [initial-block {:revealed? false
                         :adjacent-mine-cnt 0
                         :mine? false}
-        initial-row (vec (take cols (cycle [initial-square])))]
+        initial-row (vec (take cols (cycle [initial-block])))]
     (vec (for [_ (range rows)]
            initial-row))))
 
