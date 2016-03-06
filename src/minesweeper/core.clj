@@ -2,6 +2,13 @@
   (:require [clojure.set :refer [difference]])
   (:gen-class))
 
+;; A board is made up of a two-dimensional vector. Each element of the
+;; vector is a map with the following keys:
+;;   1. :revealed? Is this block revealed to the player?
+;;   2. :adjacent-mine-cnt The sum of the blocks touching this block
+;;      that are mines.
+;;   3. mine? Is this block a mine?
+
 (defn board-coords
   "A list of all of the coordinates of a board in the form [row col]."
   [board]
@@ -76,9 +83,9 @@
   [board row col]
   (loop [blocks-to-traverse [[row col]]
          blocks-to-reveal #{}]
-    (let [[cur-row cur-col] (first blocks-to-traverse)]
-      (if (and (not cur-row) (not cur-col))
-        blocks-to-reveal
+    (if (not (seq blocks-to-traverse))
+      blocks-to-reveal
+      (let [[cur-row cur-col] (first blocks-to-traverse)]
         (if (pos? (get-in board [cur-row cur-col :adjacent-mine-cnt]))
           (recur (rest blocks-to-traverse) (conj blocks-to-reveal [cur-row cur-col]))
           (let [blocks-to-traverse (concat (rest blocks-to-traverse)
