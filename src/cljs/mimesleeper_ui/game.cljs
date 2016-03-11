@@ -6,8 +6,8 @@
 ;;   1. :revealed? Is this block revealed to the player?
 ;;   2. :adjacent-mine-cnt The sum of the blocks touching this block
 ;;      that are mines.
-;;   3. mine? Is this block a mine?
-;;   4. marked? Can be any of the following #{nil :flag :question-mark}
+;;   3. :mine? Is this block a mine?
+;;   4. :marked? Can be any of the following #{nil :flag :question-mark}
 
 (defn board-coords
   "A list of all of the coordinates of a board in the form [row col]."
