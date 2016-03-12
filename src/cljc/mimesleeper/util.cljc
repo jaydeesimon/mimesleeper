@@ -1,4 +1,4 @@
-(ns mimesleeper-ui.util)
+(ns mimesleeper.util)
 
 (defn foo-cljc [x]
   "I don't do a whole lot."

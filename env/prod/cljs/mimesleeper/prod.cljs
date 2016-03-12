@@ -1,5 +1,5 @@
-(ns mimesleeper-ui.prod
-  (:require [mimesleeper-ui.core :as core]))
+(ns mimesleeper.prod
+  (:require [mimesleeper.core :as core]))
 
 ;;ignore println statements in prod
 (set! *print-fn* (fn [& _]))

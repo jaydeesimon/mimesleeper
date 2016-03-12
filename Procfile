@@ -1,1 +1,1 @@
-web: java $JVM_OPTS -cp target/mimesleeper-ui.jar clojure.main -m mimesleeper-ui.server
+web: java $JVM_OPTS -cp target/mimesleeper.jar clojure.main -m mimesleeper.server

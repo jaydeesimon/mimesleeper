@@ -1,5 +1,5 @@
-(ns mimesleeper-ui.repl
-  (:use mimesleeper-ui.handler
+(ns mimesleeper.repl
+  (:use mimesleeper.handler
         ring.server.standalone
         [ring.middleware file-info file]))
 

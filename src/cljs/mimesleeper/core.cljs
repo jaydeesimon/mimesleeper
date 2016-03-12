@@ -1,7 +1,7 @@
-(ns mimesleeper-ui.core
+(ns mimesleeper.core
   (:require [reagent.core :as reagent :refer [atom]]
-            [mimesleeper-ui.game :as game]
-            [mimesleeper-ui.components :as c]))
+            [mimesleeper.game :as game]
+            [mimesleeper.components :as c]))
 
 (def board (atom (game/generate-board 10 8 15)))
 

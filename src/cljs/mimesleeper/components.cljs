@@ -1,5 +1,5 @@
-(ns mimesleeper-ui.components
-  (:require [mimesleeper-ui.game :as game]))
+(ns mimesleeper.components
+  (:require [mimesleeper.game :as game]))
 
 (defn reveal-block [board row col]
   (fn [_]

@@ -1,5 +1,5 @@
-(ns ^:figwheel-no-load mimesleeper-ui.dev
-  (:require [mimesleeper-ui.core :as core]
+(ns ^:figwheel-no-load mimesleeper.dev
+  (:require [mimesleeper.core :as core]
             [figwheel.client :as figwheel :include-macros true]))
 
 (enable-console-print!)

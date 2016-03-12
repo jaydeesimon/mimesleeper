@@ -1,4 +1,4 @@
-(defproject mimesleeper-ui "0.1.0-SNAPSHOT"
+(defproject mimesleeper "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -26,14 +26,14 @@
             [lein-asset-minifier "0.2.7"
              :exclusions [org.clojure/clojure]]]
 
-  :ring {:handler mimesleeper-ui.handler/app
-         :uberwar-name "mimesleeper-ui.war"}
+  :ring {:handler mimesleeper.handler/app
+         :uberwar-name "mimesleeper.war"}
 
   :min-lein-version "2.5.0"
 
-  :uberjar-name "mimesleeper-ui.jar"
+  :uberjar-name "mimesleeper.jar"
 
-  :main mimesleeper-ui.server
+  :main mimesleeper.server
 
   :clean-targets ^{:protect false} [:target-path
                                     [:cljsbuild :builds :app :compiler :output-dir]
@@ -54,7 +54,7 @@
                                         :pretty-print  true}}}}
 
 
-  :profiles {:dev {:repl-options {:init-ns mimesleeper-ui.repl}
+  :profiles {:dev {:repl-options {:init-ns mimesleeper.repl}
 
                    :dependencies [[ring/ring-mock "0.3.0"]
                                   [ring/ring-devel "1.4.0"]
@@ -71,8 +71,8 @@
                                                 org.clojure/tools.analyzer.jvm]]
                                   [org.clojure/tools.nrepl "0.2.12"]
                                   [com.cemerick/piggieback "0.2.1"]
-                                  [pjstadig/humane-test-output "0.7.1"]
-                                  ]
+                                  [pjstadig/humane-test-output "0.7.1"]]
+
 
                    :source-paths ["env/dev/clj"]
                    :plugins [[lein-figwheel "0.5.0-6"
@@ -84,8 +84,8 @@
                                            org.clojure/tools.reader
                                            org.clojure/clojurescript
                                            org.clojure/core.async
-                                           org.clojure/tools.analyzer.jvm]]
-                             ]
+                                           org.clojure/tools.analyzer.jvm]]]
+
 
                    :injections [(require 'pjstadig.humane-test-output)
                                 (pjstadig.humane-test-output/activate!)]
@@ -93,21 +93,21 @@
                    :figwheel {:http-server-root "public"
                               :server-port 3449
                               :nrepl-port 7002
-                              :nrepl-middleware ["cemerick.piggieback/wrap-cljs-repl"
-                                                 ]
+                              :nrepl-middleware ["cemerick.piggieback/wrap-cljs-repl"]
+
                               :css-dirs ["resources/public/css"]
-                              :ring-handler mimesleeper-ui.handler/app}
+                              :ring-handler mimesleeper.handler/app}
 
                    :env {:dev true}
 
                    :cljsbuild {:builds {:app {:source-paths ["env/dev/cljs"]
-                                              :compiler {:main "mimesleeper-ui.dev"
-                                                         :source-map true}}
+                                              :compiler {:main "mimesleeper.dev"
+                                                         :source-map true}}}}}
 
 
 
-                                        }
-                               }}
+
+
 
              :uberjar {:hooks [minify-assets.plugin/hooks]
                        :source-paths ["env/prod/clj"]

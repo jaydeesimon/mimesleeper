@@ -1,4 +1,4 @@
-(ns mimesleeper-ui.game
+(ns mimesleeper.game
   (:require [clojure.set :refer [difference]]))
 
 ;; A board is made up of a two-dimensional vector. Each element of the
