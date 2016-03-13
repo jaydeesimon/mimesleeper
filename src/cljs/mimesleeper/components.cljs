@@ -1,17 +1,15 @@
 (ns mimesleeper.components
-  (:require [mimesleeper.game :as game]))
+  (:require [mimesleeper.game :as game]
+            [mimesleeper.event :as evt]))
 
-(defn reveal-block [board row col]
-  (fn [_]
-    (let [new-board (reduce (fn [board' [row' col']]
-                              (assoc-in board' [row' col' :revealed?] true))
-                            @board
-                            (game/coords-to-reveal @board row col))]
-      (reset! board new-board))))
+(defn on-right-click [event board row col]
+  (fn [e]
+    (.preventDefault e)
+    (evt/process-event event board row col)))
 
 (defn flag [board row col]
   [:svg {:x "0px" :y "0px" :width "22px" :height "22px" :viewBox "0 0 76 76" :enable-background "new 0 0 76 76"
-         :on-click (reveal-block board row col)}
+         :on-context-menu (on-right-click :toggle-flag board row col)}
    [:path {:fill "#FDFCFD" :d "M0.009,0h75.982C75.996,0,76,0.004,76,0.009V75.99c0,0.006-0.004,0.01-0.009,0.01H0.009 C0.004,76,0,75.996,0,75.99V0.009C0,0.004,0.004,0,0.009,0z"}]
    [:path {:fill "#757575" :d "M75.99,0C75.995,0,76,0.005,76,0.01v75.981C76,75.996,75.995,76,75.99,76H0.009 C0.004,76,0,75.996,0,75.991L75.99,0z"}]
    [:polygon {:fill "#B9B9B9" :points "8.508,8.5 67.492,8.5 67.5,8.508 67.5,67.491 67.492,67.5 8.508,67.5 8.5,67.491 8.5,8.508"}]
@@ -22,22 +20,21 @@
 
 (defn unopened [board row col]
   [:svg {:x "0px" :y "0px" :width "22px" :height "22px" :viewBox "0 0 76 76" :enable-background "new 0 0 76 76"
-              :on-click (reveal-block board row col)}
+         :on-click #(evt/process-event :reveal-block board row col)
+         :on-context-menu (on-right-click :toggle-flag board row col)}
    [:path {:fill "#FDFCFD" :d "M0.009,0h75.982C75.996,0,76,0.004,76,0.009V75.99c0,0.006-0.004,0.01-0.009,0.01H0.009 C0.004,76,0,75.996,0,75.99V0.009C0,0.004,0.004,0,0.009,0z"}]
    [:path {:fill "#757575" :d "M75.99,0C75.995,0,76,0.005,76,0.01v75.981C76,75.996,75.995,76,75.99,76H0.009 C0.004,76,0,75.996,0,75.991L75.99,0z"}]
    [:polygon {:fill "#B9B9B9" :points "8.508,8.5 67.492,8.5 67.5,8.508 67.5,67.491 67.492,67.5 8.508,67.5 8.5,67.491 8.5,8.508"}]])
 
 (defn question-mark [board row col]
-  [:svg {:x "0px" :y "0px" :width "22px" :height "22px" :viewBox "0 0 76 76" :enable-background "new 0 0 76 76"
-         :on-click (reveal-block board row col)}
+  [:svg {:x "0px" :y "0px" :width "22px" :height "22px" :viewBox "0 0 76 76" :enable-background "new 0 0 76 76"}
    [:path {:fill "#FDFCFD" :d "M0.009,0h75.982C75.996,0,76,0.004,76,0.009V75.99c0,0.006-0.004,0.01-0.009,0.01H0.009 C0.004,76,0,75.996,0,75.99V0.009C0,0.004,0.004,0,0.009,0z"}]
    [:path {:fill "#757575" :d "M75.99,0C75.995,0,76,0.005,76,0.01v75.981C76,75.996,75.995,76,75.99,76H0.009 C0.004,76,0,75.996,0,75.991L75.99,0z"}]
    [:polygon {:fill "#B9B9B9" :points "8.508,8.5 67.492,8.5 67.5,8.508 67.5,67.491 67.492,67.5 8.508,67.5 8.5,67.491 8.5,8.508"}]
    [:path {:d "M24.684,28.694c0-4.57,1.569-8.347,4.716-11.338c2.219-2.109,5.175-3.164,8.877-3.164c4.065,0,7.213,1.055,9.433,3.164 c2.4,2.285,3.606,5.186,3.606,8.701c0,2.991-1.109,5.537-3.329,7.646c-1.295,1.23-3.052,2.9-5.271,5.01 c-1.664,1.582-2.497,3.955-2.497,7.119h-4.993c0-3.864,0.647-6.765,1.942-8.701c0.924-1.406,2.678-3.337,5.271-5.801 c1.479-1.406,2.22-3.073,2.22-5.01c0-2.461-0.65-4.307-1.942-5.537c-1.109-1.055-2.681-1.582-4.716-1.582 c-1.665,0-3.052,0.527-4.161,1.582c-1.85,1.758-2.774,4.395-2.774,7.91H24.684z M34.671,53.479h6.104v6.328h-6.104V53.479z"}]])
 
 (defn bomb [board row col]
-  [:svg {:x "0px" :y "0px" :width "22px" :height "22px" :viewBox "0 0 97.324 97.324" :enable-background "new 0 0 76 76"
-         :on-click (reveal-block board row col)}
+  [:svg {:x "0px" :y "0px" :width "22px" :height "22px" :viewBox "0 0 97.324 97.324" :enable-background "new 0 0 76 76"}
    [:svg {:viewBox "0 0 76 76"}
     [:polygon {:fill "#B9B9B9" :points "75.001,75.001 1,75.001 1,1 75.001,1 75.001,75.001"}]
     [:path {:fill "#757575" :d "M75.991,0C75.996,0,76,0.004,76,0.009V75.99c0,0.006-0.004,0.01-0.009,0.01H0.009 C0.004,76,0,75.996,0,75.99V0.009C0,0.004,0.004,0,0.009,0H75.991 M74,2H2v72h72V2L74,2z"}]]
@@ -77,17 +74,17 @@
 
 (defn block-n [board row col n]
   (let [parent-svg-elem [:svg {:x "0px" :y "0px" :width "22px" :height "22px" :viewBox "0 0 76 76" :enable-background "new 0 0 76 76"
-                               :on-click (reveal-block board row col)}]]
+                               :on-context-menu (fn [e] (.preventDefault e))}]]
     (apply conj parent-svg-elem (get block-n-svg-elems n))))
 
 (defn grid [board]
   [:div
    (doall (map (fn [[row col]]
                  (let [block (cond
-                               (not (get-in @board [row col :revealed?])) [unopened board row col]
-                               (get-in @board [row col :mine?]) [bomb board row col]
                                (= (get-in @board [row col :marked?]) :flag) [flag board row col]
                                (= (get-in @board [row col :marked?]) :question-mark) [question-mark board row col]
+                               (not (get-in @board [row col :revealed?])) [unopened board row col]
+                               (get-in @board [row col :mine?]) [bomb board row col]
                                :else [block-n board row col (get-in @board [row col :adjacent-mine-cnt])])]
                    (with-meta block {:key [row col]})))
                (game/board-coords @board)))])
