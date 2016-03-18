@@ -3,12 +3,11 @@
 
 ;; A board is made up of a two-dimensional vector. Each element of the
 ;; vector is a map with the following keys:
-;;   1. :revealed? Is this block revealed to the player?
+;;   1. :block-state Can be one of #{:not-revealed :revealed :flag :question-mark}
 ;;   2. :adjacent-mine-cnt The sum of the blocks touching this block
 ;;      that are mines.
 ;;   3. :mine? Is this block a mine?
-;;   4. :marked? Can be any of the following #{nil :flag :question-mark}
-;;   5. :stepped-on-mine? Will be true if the block clicked is a mine.
+;;   4. :stepped-on-mine? Will be true if the block clicked is a mine.
 
 (defn board-coords
   "A list of all of the coordinates of a board in the form [row col]."
@@ -22,8 +21,7 @@
   [rows cols]
   (let [initial-block {:block-state       :not-revealed
                        :adjacent-mine-cnt 0
-                       :mine?             false
-                       :marked?           nil}
+                       :mine?             false}
         initial-row (vec (take cols (cycle [initial-block])))]
     (vec (for [_ (range rows)]
            initial-row))))
@@ -56,8 +54,8 @@
   [board row col]
   (->> (surrounding-coords row col)
        (map (fn [coord]
-              {:coord coord :val (get-in board coord)}))
-       (filter #(some? (:val %)))))
+              {:coord coord :block (get-in board coord)}))
+       (filter #(some? (:block %)))))
 
 (defn update-adjacent-mine-count
   "For each block in the board, count and set the
@@ -65,7 +63,7 @@
   [board]
   (reduce (fn [board [row col]]
             (let [surrounding-blocks (surrounding-blocks board row col)
-                  surrounding-mines (filter #(get-in % [:val :mine?]) surrounding-blocks)]
+                  surrounding-mines (filter #(get-in % [:block :mine?]) surrounding-blocks)]
               (assoc-in board [row col :adjacent-mine-cnt] (count surrounding-mines))))
           board
           (board-coords board)))
@@ -78,24 +76,18 @@
        (add-mines num-mines)
        (update-adjacent-mine-count))))
 
-(defn mine-coords
-  "The coordinates of all the mines on a board."
-  [board]
+(defn get-block-coords
+  "Returns a sequence of coordinates that satisfy block-pred."
+  [board block-pred]
   (filter (fn [[row col]]
-            (get-in board [row col :mine?]))
+            (block-pred (get-in board [row col])))
           (board-coords board)))
 
 (defn mine-revealed?
   "Is there at least one mine revealed on the board?"
   [board]
-  (some (fn [[row col]]
-          (and (get-in board [row col :mine?]) (= (get-in board [row col :block-state]) :revealed)))
-        (board-coords board)))
-
-(defn flagged-coords [board]
-  (filter (fn [[row col]]
-            (= (get-in board [row col :block-state]) :flag))
-          (board-coords board)))
+  (seq (get-block-coords board #(and (:mine? %)
+                                     (= (:block-state %) :revealed)))))
 
 ;; TODO: This defn is a little rough on the eyes.
 ;; Make this easier to understand.

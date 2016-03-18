@@ -106,8 +106,8 @@
    [:path {:fill "#009E83" :d "M254.9,403.6c-8.5,0-16.9-1.9-24.8-5.6c-4.1-1.9-5.8-6.8-3.9-10.9c1.9-4.1,6.8-5.8,10.9-3.9c11.7,5.5,25.1,5.3,36.9-0.5c4-2,8.9-0.4,11,3.7c2,4,0.4,8.9-3.7,11C272.9,401.5,263.9,403.6,254.9,403.6z"}]])
 
 (defn mines-left [board]
-  (let [flag-count (count (game/flagged-coords @board))
-        mine-count (count (game/mine-coords @board))]
+  (let [flag-count (count (game/get-block-coords @board #(= (:block-state %) :flag)))
+        mine-count (count (game/get-block-coords @board :mine?))]
     [:span {:style {:margin      "100px"
                     :font-size   "large"
                     :font-family "\"Arial Black\", Gadget, sans-serif"}} (- mine-count flag-count)]))
