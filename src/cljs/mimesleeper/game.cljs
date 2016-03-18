@@ -8,6 +8,7 @@
 ;;      that are mines.
 ;;   3. :mine? Is this block a mine?
 ;;   4. :marked? Can be any of the following #{nil :flag :question-mark}
+;;   5. :stepped-on-mine? Will be true if the block clicked is a mine.
 
 (defn board-coords
   "A list of all of the coordinates of a board in the form [row col]."
@@ -22,8 +23,7 @@
   (let [initial-block {:revealed?         false
                        :adjacent-mine-cnt 0
                        :mine?             false
-                       :marked?           nil
-                       :stepped-on-mine?  false}
+                       :marked?           nil}
         initial-row (vec (take cols (cycle [initial-block])))]
     (vec (for [_ (range rows)]
            initial-row))))
