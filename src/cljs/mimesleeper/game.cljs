@@ -20,7 +20,7 @@
 (defn init-board
   "Initialize a board of size rows, cols."
   [rows cols]
-  (let [initial-block {:revealed?         false
+  (let [initial-block {:block-state       :not-revealed
                        :adjacent-mine-cnt 0
                        :mine?             false
                        :marked?           nil}
@@ -89,14 +89,20 @@
   "Is there at least one mine revealed on the board?"
   [board]
   (some (fn [[row col]]
-          (and (get-in board [row col :mine?]) (get-in board [row col :revealed?])))
+          (and (get-in board [row col :mine?]) (= (get-in board [row col :block-state]) :revealed)))
         (board-coords board)))
+
+(defn flagged-coords [board]
+  (filter (fn [[row col]]
+            (= (get-in board [row col :block-state]) :flag))
+          (board-coords board)))
 
 ;; TODO: This defn is a little rough on the eyes.
 ;; Make this easier to understand.
-(defn coords-to-reveal
-  "Given a starting [row col], recursively find all of the
-  related coordinates to reveal."
+(defn traverse-coords
+  "Given a starting [row col], recursively traverse the
+  coordinates stopping when the a block is adjacent to at
+  least one mine."
   [board row col]
   (loop [blocks-to-traverse [[row col]]
          blocks-to-reveal #{}]

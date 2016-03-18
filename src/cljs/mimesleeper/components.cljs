@@ -105,13 +105,19 @@
    [:path {:fill "#2B3B47" :d "M303,348.3c0,0-1.1,1.3-3,3.5c-0.5,0.5-1,1.1-1.7,1.8c-1,0.7-2.1,1.5-3.3,2.3c-1.3,0.8-2.6,1.6-4,2.5c-1.4,0.8-2.8,1.2-4.4,1.8c-1.5,0.5-3.1,1.3-4.9,1.7c-1.7,0.4-3.6,0.6-5.4,0.9c-3.8,0.7-7.8,0.4-12,0.1c-4.1-0.8-8.5-1.4-12.6-3.5c-2.1-0.9-4.2-1.7-6-3.1l-2.9-1.9l-1.4-1l-0.7-0.5l-0.4-0.2l-0.2-0.1l-0.1-0.1l0,0c0.5,0.4-1.1-0.8,1,0.8c-2.4-1.7-6-4.5-6.6-4.2c-0.8-0.6-2.9-1.3-4.7-2c-0.9-0.3-1.9-0.3-2.8-0.6c-0.9-0.3-1.9-0.5-2.8-0.5c-1.8-0.1-3.6-0.4-5.3-0.2c-1.7,0-3.3,0.2-4.7,0.5c-1.4,0.2-2.8,0.4-3.7,0.8c-2.1,0.6-3.5,0.9-3.5,0.9l-2.9,0.6c-4.9,1-9.7-2.2-10.7-7.1c-0.6-2.8,0.3-5.6,1.9-7.6c0,0,1.3-1.6,4-4.2c1.3-1.4,3.1-2.8,5.3-4.1c1.1-0.7,2.3-1.4,3.6-2.2c1.3-0.7,2.8-1.2,4.3-1.8c1.5-0.5,3.1-1.3,4.9-1.7c1.7-0.4,3.6-0.6,5.4-0.9c3.8-0.7,7.8-0.4,12-0.1c4.1,0.9,8.3,1.3,13.2,3.8c5.6,2.4,7,4,10,5.8l3.5,2.5c0.7,0.7,1.7,1,2.5,1.4c1.7,1,3.5,1.6,5.3,2.3c0.9,0.3,1.9,0.3,2.8,0.6c0.9,0.3,1.9,0.5,2.8,0.5c1.8,0.1,3.6,0.4,5.3,0.2c0.8,0,1.6,0,2.4-0.1c0.6-0.1,1.2-0.1,1.8-0.1c0.6,0,1.2-0.1,1.7,0c0.7-0.2,1.5-0.6,2.2-0.8c2.7-1,4.4-1.6,4.4-1.6c5.1-1.6,10.4,1.3,12,6.3C305.6,342.6,304.9,345.9,303,348.3z"}]
    [:path {:fill "#009E83" :d "M254.9,403.6c-8.5,0-16.9-1.9-24.8-5.6c-4.1-1.9-5.8-6.8-3.9-10.9c1.9-4.1,6.8-5.8,10.9-3.9c11.7,5.5,25.1,5.3,36.9-0.5c4-2,8.9-0.4,11,3.7c2,4,0.4,8.9-3.7,11C272.9,401.5,263.9,403.6,254.9,403.6z"}]])
 
-(defn flags [num]
-  [:h1 num])
+(defn mines-left [board]
+  (let [flag-count (count (game/flagged-coords @board))
+        mine-count (count (game/mine-coords @board))]
+    [:span {:style {:margin      "100px"
+                    :font-size   "large"
+                    :font-family "\"Arial Black\", Gadget, sans-serif"}} (- mine-count flag-count)]))
 
 (defn grid [board]
   (let [cols (count (first @board))]
     [:div
-     [:div (if (game/mine-revealed? @board) [sad-face board] [smiley-face])]
+     [:div
+      (if (game/mine-revealed? @board) [sad-face board] [smiley-face])
+      [mines-left board]]
      [:div {:style {:width        (str (* 22 cols) "px")
                     :border-style "ridge"
                     :border-width "12px"
@@ -119,9 +125,9 @@
                     :line-height  "0em"}}
       (doall (map (fn [[row col]]
                     (let [block (cond
-                                  (= (get-in @board [row col :marked?]) :flag) [flag board row col]
-                                  (= (get-in @board [row col :marked?]) :question-mark) [question-mark board row col]
-                                  (not (get-in @board [row col :revealed?])) [unopened board row col]
+                                  (= (get-in @board [row col :block-state]) :flag) [flag board row col]
+                                  (= (get-in @board [row col :block-state]) :question-mark) [question-mark board row col]
+                                  (= (get-in @board [row col :block-state]) :not-revealed) [unopened board row col]
                                   (get-in @board [row col :mine?]) [bomb board row col]
                                   :else [block-n board row col (get-in @board [row col :adjacent-mine-cnt])])]
                       (with-meta block {:key [row col]})))

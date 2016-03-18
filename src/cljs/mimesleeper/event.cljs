@@ -6,25 +6,27 @@
 
 (defn reveal-coords [board coords]
   (reduce (fn [board' [row' col']]
-            (assoc-in board' [row' col' :revealed?] true))
+            (assoc-in board' [row' col' :block-state] :revealed))
           board
           coords))
 
 (defmethod process-event :reveal-block [_ board row col]
   (let [new-board (if (get-in @board [row col :mine?])
-                    (-> @board
-                        (assoc-in [row col :stepped-on-mine?] true)
+                    (-> (assoc-in @board [row col :stepped-on-mine?] true)
                         (reveal-coords (game/mine-coords @board)))
-                    (reveal-coords @board (game/coords-to-reveal @board row col)))]
+                    (reveal-coords @board
+                                   (filter (fn [[row col]]
+                                             (= :not-revealed (get-in @board [row col :block-state])))
+                                           (game/traverse-coords @board row col))))]
     (reset! board new-board)))
 
 (defmethod process-event :toggle-flag [_ board row col]
   (let [new-board (update-in @board
                              [row col]
                              (fn [block]
-                               (if (= (:marked? block) :flag)
-                                 (assoc block :marked? nil)
-                                 (assoc block :marked? :flag))))]
+                               (if (= (:block-state block) :flag)
+                                 (assoc block :block-state :not-revealed)
+                                 (assoc block :block-state :flag))))]
     (reset! board new-board)))
 
 (defmethod process-event :new-game [_ board]
