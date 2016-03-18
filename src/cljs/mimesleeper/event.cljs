@@ -13,7 +13,7 @@
 (defmethod process-event :reveal-block [_ board row col]
   (let [new-board (if (get-in @board [row col :mine?])
                     (-> @board
-                        (assoc-in [row col :active?] true)
+                        (assoc-in [row col :stepped-on-mine?] true)
                         (reveal-coords (game/mine-coords @board)))
                     (reveal-coords @board (game/coords-to-reveal @board row col)))]
     (reset! board new-board)))

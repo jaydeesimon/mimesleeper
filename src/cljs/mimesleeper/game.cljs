@@ -23,7 +23,7 @@
                        :adjacent-mine-cnt 0
                        :mine?             false
                        :marked?           nil
-                       :active?           false}
+                       :stepped-on-mine?  false}
         initial-row (vec (take cols (cycle [initial-block])))]
     (vec (for [_ (range rows)]
            initial-row))))
@@ -78,12 +78,16 @@
        (add-mines num-mines)
        (update-adjacent-mine-count))))
 
-(defn mine-coords [board]
+(defn mine-coords
+  "The coordinates of all the mines on a board."
+  [board]
   (filter (fn [[row col]]
             (get-in board [row col :mine?]))
           (board-coords board)))
 
-(defn mine-revealed? [board]
+(defn mine-revealed?
+  "Is there at least one mine revealed on the board?"
+  [board]
   (some (fn [[row col]]
           (and (get-in board [row col :mine?]) (get-in board [row col :revealed?])))
         (board-coords board)))
