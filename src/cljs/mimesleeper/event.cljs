@@ -24,9 +24,11 @@
   (let [new-board (update-in @board
                              [row col]
                              (fn [block]
-                               (if (= (:block-state block) :flag)
-                                 (assoc block :block-state :not-revealed)
-                                 (assoc block :block-state :flag))))]
+                               (let [next-block-state (condp = (:block-state block)
+                                                        :not-revealed :flag
+                                                        :flag :question-mark
+                                                        :question-mark :not-revealed)]
+                                 (assoc block :block-state next-block-state))))]
     (reset! board new-board)))
 
 (defmethod process-event :new-game [_ board]

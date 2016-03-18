@@ -27,7 +27,8 @@
    [:polygon {:fill "#B9B9B9" :points "8.508,8.5 67.492,8.5 67.5,8.508 67.5,67.491 67.492,67.5 8.508,67.5 8.5,67.491 8.5,8.508"}]])
 
 (defn question-mark [board row col]
-  [:svg {:width "22px" :height "22px" :viewBox "0 0 76 76" :enable-background "new 0 0 76 76"}
+  [:svg {:width "22px" :height "22px" :viewBox "0 0 76 76" :enable-background "new 0 0 76 76"
+         :on-context-menu (on-right-click :toggle-flag board row col)}
    [:path {:fill "#FDFCFD" :d "M0.009,0h75.982C75.996,0,76,0.004,76,0.009V75.99c0,0.006-0.004,0.01-0.009,0.01H0.009 C0.004,76,0,75.996,0,75.99V0.009C0,0.004,0.004,0,0.009,0z"}]
    [:path {:fill "#757575" :d "M75.99,0C75.995,0,76,0.005,76,0.01v75.981C76,75.996,75.995,76,75.99,76H0.009 C0.004,76,0,75.996,0,75.991L75.99,0z"}]
    [:polygon {:fill "#B9B9B9" :points "8.508,8.5 67.492,8.5 67.5,8.508 67.5,67.491 67.492,67.5 8.508,67.5 8.5,67.491 8.5,8.508"}]
