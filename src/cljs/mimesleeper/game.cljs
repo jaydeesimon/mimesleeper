@@ -22,7 +22,8 @@
   (let [initial-block {:revealed?         false
                        :adjacent-mine-cnt 0
                        :mine?             false
-                       :marked?           nil}
+                       :marked?           nil
+                       :active?           false}
         initial-row (vec (take cols (cycle [initial-block])))]
     (vec (for [_ (range rows)]
            initial-row))))
@@ -71,10 +72,21 @@
 
 (defn generate-board
   "Generate a board intended for a new game."
-  [rows cols num-mines]
-  (-> (init-board rows cols)
-      (add-mines num-mines)
-      (update-adjacent-mine-count)))
+  ([] (generate-board 30 16 50))
+  ([rows cols num-mines]
+   (-> (init-board rows cols)
+       (add-mines num-mines)
+       (update-adjacent-mine-count))))
+
+(defn mine-coords [board]
+  (filter (fn [[row col]]
+            (get-in board [row col :mine?]))
+          (board-coords board)))
+
+(defn mine-revealed? [board]
+  (some (fn [[row col]]
+          (and (get-in board [row col :mine?]) (get-in board [row col :revealed?])))
+        (board-coords board)))
 
 ;; TODO: This defn is a little rough on the eyes.
 ;; Make this easier to understand.
