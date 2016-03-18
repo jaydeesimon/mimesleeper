@@ -44,7 +44,7 @@
                       col (range -1 (inc 1))]
                   [row col])]
     (->> offsets
-         (remove #(= % [0 0]))
+         (remove #(= % [0 0])) ;; Do not include the coord passed in
          (map (fn [[row-offset col-offset]]
                 [(+ row-offset row) (+ col-offset col)])))))
 
