@@ -20,7 +20,7 @@
                                            (game/traverse-coords @board row col))))]
     (reset! board new-board)))
 
-(defmethod process-event :toggle-flag [_ board row col]
+(defmethod process-event :toggle-block-state [_ board row col]
   (let [new-board (update-in @board
                              [row col]
                              (fn [block]
