@@ -105,13 +105,13 @@
   least one mine."
   [board row col]
   (loop [blocks-to-traverse [[row col]]
-         blocks-to-reveal #{}]
+         blocks-traversed #{}]
     (if (not (seq blocks-to-traverse))
-      blocks-to-reveal
+      blocks-traversed
       (let [[cur-row cur-col] (first blocks-to-traverse)]
         (if (pos? (get-in board [cur-row cur-col :adjacent-mine-cnt]))
-          (recur (rest blocks-to-traverse) (conj blocks-to-reveal [cur-row cur-col]))
+          (recur (rest blocks-to-traverse) (conj blocks-traversed [cur-row cur-col]))
           (let [blocks-to-traverse (concat (rest blocks-to-traverse)
                                            (map :coord (surrounding-blocks board cur-row cur-col)))]
-            (recur (vec (difference (set blocks-to-traverse) blocks-to-reveal))
-                   (conj blocks-to-reveal [cur-row cur-col]))))))))
+            (recur (vec (difference (set blocks-to-traverse) blocks-traversed))
+                   (conj blocks-traversed [cur-row cur-col]))))))))
