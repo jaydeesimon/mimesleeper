@@ -5,8 +5,8 @@
                           (first args)))
 
 (defn reveal-coords [board coords]
-  (reduce (fn [board' [row' col']]
-            (assoc-in board' [row' col' :block-state] :revealed))
+  (reduce (fn [board' [row col]]
+            (assoc-in board' [row col :block-state] :revealed))
           board
           coords))
 
