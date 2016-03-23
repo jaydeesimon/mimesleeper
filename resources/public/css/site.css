@@ -1,0 +1,12 @@
+#main-border {
+    border-style: ridge;
+    border-width: 12px;
+    border-color: #B9B9B9;
+    line-height:  0em;
+}
+
+#game-status {
+    margin: 100px;
+    font-size: large;
+    font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
+}

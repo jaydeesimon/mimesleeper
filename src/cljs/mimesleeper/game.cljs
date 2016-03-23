@@ -83,8 +83,15 @@
             (block-pred (get-in board [row col])))
           (board-coords board)))
 
-(defn mine-revealed?
-  "Is there at least one mine revealed on the board?"
+(defn game-won?
+  "True if the game is won."
+  [board]
+  (let [flags-coords (get-block-coords board #(= (:block-state %) :flag))
+        mine-coords (get-block-coords board :mine?)]
+    (= (set flags-coords) (set mine-coords))))
+
+(defn game-lost?
+  "True if the game is lost."
   [board]
   (seq (get-block-coords board #(and (:mine? %)
                                      (= (:block-state %) :revealed)))))
