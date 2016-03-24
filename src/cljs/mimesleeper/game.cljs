@@ -70,7 +70,7 @@
 
 (defn generate-board
   "Generate a board intended for a new game."
-  ([] (generate-board 16 30 50))
+  ([] (generate-board 16 30 85))
   ([rows cols num-mines]
    (-> (init-board rows cols)
        (add-mines num-mines)
@@ -84,17 +84,24 @@
           (board-coords board)))
 
 (defn game-won?
-  "True if the game is won."
+  "True if all of the flags are dropped on every mine, false otherwise."
   [board]
   (let [flags-coords (get-block-coords board #(= (:block-state %) :flag))
         mine-coords (get-block-coords board :mine?)]
     (= (set flags-coords) (set mine-coords))))
 
 (defn game-lost?
-  "True if the game is lost."
+  "True if a mine is revealed, false otherwise."
   [board]
   (seq (get-block-coords board #(and (:mine? %)
                                      (= (:block-state %) :revealed)))))
+
+(defn flags-left?
+  "True if there are flags available to mark a block, false otherwise."
+  [board]
+  (let [flags-coords (get-block-coords board #(= (:block-state %) :flag))
+        mine-coords (get-block-coords board :mine?)]
+    (pos? (- (count mine-coords) (count flags-coords)))))
 
 ;; TODO: This defn is a little rough on the eyes.
 ;; Make this easier to understand.

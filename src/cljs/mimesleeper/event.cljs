@@ -1,11 +1,6 @@
 (ns mimesleeper.event
   (:require [mimesleeper.game :as game]))
 
-;; Add separate fns for game-won? and game-lost?
-;; and handle them differently.
-;; Need something to do when the game is won.
-;; Maybe show a different face and reveal every square?
-
 (defmulti process-event (fn [event board row col]
                           (cond
                             (= :new-game event) :new-game
@@ -34,7 +29,7 @@
                              [row col]
                              (fn [block]
                                (let [next-block-state (condp = (:block-state block)
-                                                        :not-revealed :flag
+                                                        :not-revealed (if (game/flags-left? @board) :flag :question-mark)
                                                         :flag :question-mark
                                                         :question-mark :not-revealed)]
                                  (assoc block :block-state next-block-state))))]

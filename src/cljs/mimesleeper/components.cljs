@@ -124,6 +124,7 @@
      (cond
        (game/game-won? @board) "You won!"
        (game/game-lost? @board) "Aw man! You lost!"
+       (not (game/flags-left? @board)) "Looks like you messed up somewhere."
        :else (str (- mine-count flag-count) " to go"))]))
 
 (defn grid [board]
