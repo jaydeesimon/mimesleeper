@@ -70,7 +70,7 @@
 
 (defn generate-board
   "Generate a board intended for a new game."
-  ([] (generate-board 30 16 50))
+  ([] (generate-board 16 30 50))
   ([rows cols num-mines]
    (-> (init-board rows cols)
        (add-mines num-mines)

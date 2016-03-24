@@ -4,7 +4,7 @@
             [mimesleeper.components :as c]))
 #_(def board (atom (game/generate-board 8 8 10)))
 
-(def board (atom (game/generate-board 30 16 50)))
+(def board (atom (game/generate-board 16 30 50)))
 
 #_(def board (atom (game/generate-board 16 16 40)))
 
