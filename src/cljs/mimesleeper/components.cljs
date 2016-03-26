@@ -76,8 +76,7 @@
 
 (defn block-n [board row col n]
   (let [parent-svg-elem [:svg {:width "22px" :height "22px" :viewBox "0 0 76 76" :enable-background "new 0 0 76 76"
-                               :on-click #(evt/update-board-state! :quick-clear board row col)
-                               :on-context-menu (fn [e] (.preventDefault e))}]]
+                               :on-context-menu (on-right-click :quick-clear board row col)}]]
     (apply conj parent-svg-elem (get block-n-svg-elems n))))
 
 (defn smiley-face [board]
