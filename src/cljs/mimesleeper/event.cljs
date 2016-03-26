@@ -49,10 +49,11 @@
 (defmethod update-board-state! :quick-clear [_ board row col]
   (let [quick-clear-coords (game/quick-clear-coords @board row col)
         mine-coords (filter (fn [[row' col']]
-                              (get-in @board [row' col' :mine?])) quick-clear-coords)]
+                              (get-in @board [row' col' :mine?])) quick-clear-coords)
+        all-mine-coords (when (seq mine-coords) (game/get-block-coords @board :mine?))]
     (as-> @board $
           (stepped-on-coords $ mine-coords)
-          (reveal-coords $ quick-clear-coords)
+          (reveal-coords $ (concat quick-clear-coords all-mine-coords))
           (reset! board $))))
 
 (defmethod update-board-state! :game-lost [_ board row col]
