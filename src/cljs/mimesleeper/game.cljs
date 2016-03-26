@@ -28,12 +28,14 @@
 
 (defn add-mines
   "Given a board, add mines to random coordinates."
-  [board num-mines]
-  (let [rand-coords (take num-mines (shuffle (board-coords board)))]
-    (reduce (fn [board [row col]]
-              (assoc-in board [row col :mine?] true))
-            board
-            rand-coords)))
+  ([board num-mines] (add-mines board num-mines []))
+  ([board num-mines exclude-coord]
+   (let [board-coords (remove #(= exclude-coord %) (board-coords board))
+         rand-coords (take num-mines (shuffle board-coords))]
+     (reduce (fn [board [row col]]
+               (assoc-in board [row col :mine?] true))
+             board
+             rand-coords))))
 
 (defn surrounding-coords
   "Given a coordinate, return the surrounding coordinates.
@@ -70,10 +72,11 @@
 
 (defn generate-board
   "Generate a board intended for a new game."
-  ([] (generate-board 16 30 85))
-  ([rows cols num-mines]
+  ([] (generate-board 16 30 85 []))
+  ([rows cols num-mines] (generate-board rows cols num-mines []))
+  ([rows cols num-mines exclude-coord]
    (-> (init-board rows cols)
-       (add-mines num-mines)
+       (add-mines num-mines exclude-coord)
        (update-adjacent-mine-count))))
 
 (defn get-block-coords
@@ -84,11 +87,16 @@
           (board-coords board)))
 
 (defn game-won?
-  "True if all of the flags are dropped on every mine, false otherwise."
+  "True if all of the flags are dropped on every mine and all
+  of the blocks that are not mines are revealed."
   [board]
   (let [flags-coords (get-block-coords board #(= (:block-state %) :flag))
-        mine-coords (get-block-coords board :mine?)]
-    (= (set flags-coords) (set mine-coords))))
+        mine-coords (get-block-coords board :mine?)
+        not-mine-coords (get-block-coords board #(not (:mine? %)))
+        revealed-coords (get-block-coords board #(= (:block-state %) :revealed))]
+    (and
+      (= (set flags-coords) (set mine-coords))
+      (= (set revealed-coords) (set not-mine-coords)))))
 
 (defn game-lost?
   "True if a mine is revealed, false otherwise."
@@ -103,8 +111,36 @@
         mine-coords (get-block-coords board :mine?)]
     (pos? (- (count mine-coords) (count flags-coords)))))
 
-;; TODO: This defn is a little rough on the eyes.
-;; Make this easier to understand.
+(defn- fully-flagged?
+  "Used when trying to quick-clear coordinates. Quick-clearing
+  can only be used if a coordinate has flags adjacent to at least
+  the amount of mines adjacent to it."
+  [board row col]
+  (let [surrounding-flag-cnt (->> (surrounding-blocks board row col)
+                                  (filter (fn [sb]
+                                            (= (get-in sb [:block :block-state]) :flag)))
+                                  (count))
+        adjacent-mine-cnt (get-in board [row col :adjacent-mine-cnt])]
+    (>= surrounding-flag-cnt adjacent-mine-cnt)))
+
+(defn quick-clear-coords
+  "A time-saving feature. Clears blocks around a revealed block
+  that is fully-flagged.
+  See http://www.minesweepers.org/quickclearing1.asp"
+  [board row col]
+  (when (fully-flagged? board row col)
+    (->> (surrounding-blocks board row col)
+         (filter (fn [sb]
+                   (= (get-in sb [:block :block-state]) :not-revealed)))
+         (map :coord))))
+
+(defn all-unrevealed?
+  "True if every coordinate is currently unrevealed, false otherwise."
+  [board]
+  (every? (fn [[row col]]
+            (= :not-revealed (get-in board [row col :block-state])))
+          (board-coords board)))
+
 (defn traverse-coords
   "Given a starting [row col], recursively traverse the
   coordinates stopping when the a block is adjacent to at

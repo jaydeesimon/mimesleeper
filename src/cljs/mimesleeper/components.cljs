@@ -5,7 +5,7 @@
 (defn on-right-click [event board row col]
   (fn [e]
     (.preventDefault e)
-    (evt/process-event event board row col)))
+    (evt/update-board-state! event board row col)))
 
 (defn flag [board row col]
   [:svg {:width "22px" :height "22px" :viewBox "0 0 76 76" :enable-background "new 0 0 76 76"
@@ -20,7 +20,7 @@
 
 (defn unopened [board row col]
   [:svg {:width "22px" :height "22px" :viewBox "0 0 76 76" :enable-background "new 0 0 76 76"
-         :on-click #(evt/process-event :reveal-block board row col)
+         :on-click #(evt/update-board-state! :reveal-block board row col)
          :on-context-menu (on-right-click :toggle-block-state board row col)}
    [:path {:fill "#FDFCFD" :d "M0.009,0h75.982C75.996,0,76,0.004,76,0.009V75.99c0,0.006-0.004,0.01-0.009,0.01H0.009 C0.004,76,0,75.996,0,75.99V0.009C0,0.004,0.004,0,0.009,0z"}]
    [:path {:fill "#757575" :d "M75.99,0C75.995,0,76,0.005,76,0.01v75.981C76,75.996,75.995,76,75.99,76H0.009 C0.004,76,0,75.996,0,75.991L75.99,0z"}]
@@ -76,12 +76,13 @@
 
 (defn block-n [board row col n]
   (let [parent-svg-elem [:svg {:width "22px" :height "22px" :viewBox "0 0 76 76" :enable-background "new 0 0 76 76"
+                               :on-click #(evt/update-board-state! :quick-clear board row col)
                                :on-context-menu (fn [e] (.preventDefault e))}]]
     (apply conj parent-svg-elem (get block-n-svg-elems n))))
 
 (defn smiley-face [board]
   [:svg {:width "88px" :height "88px" :viewBox "0 0 511.9 511.9"
-         :on-click #(evt/process-event :new-game board)}
+         :on-click #(evt/update-board-state! :new-game board)}
    [:path {:fill "#FFD469" :d "M256,35.3C134.1,35.3,35.3,134.1,35.3,256c0,3.3,0.1,6.6,0.2,9.9c-12.8,1.7-22.8,12.6-22.8,25.9c0,14.5,11.7,26.2,26.2,26.2h5.2C71,409.6,155.6,476.6,256,476.6c121.8,0,220.6-98.8,220.6-220.6C476.6,134.1,377.8,35.3,256,35.3z"}]
    [:path {:fill "#2B3B47" :d "M365.8,179.5c13.4,0,24.2,10.8,24.2,24.2V258c0,13.4-10.8,3-24.2,3l0,0c-13.4,0-24.2,10.3-24.2-3v-54.3C341.6,190.3,352.5,179.5,365.8,179.5L365.8,179.5z"}]
    [:path {:fill "#F2A74E" :d "M343.8,271.4c-2.8,0-5.5-1.5-6.8-4.2c-1.9-3.8-0.3-8.3,3.4-10.2c16.2-8,34.7-8.3,50.7-0.7c3.8,1.8,5.4,6.3,3.6,10.1c-1.8,3.8-6.3,5.4-10.1,3.6c-11.8-5.6-25.4-5.4-37.4,0.5C346.1,271.1,345,271.4,343.8,271.4z"}]
@@ -94,7 +95,7 @@
 
 (defn sad-face [board]
   [:svg {:width "88px" :height "88px" :viewBox "0 0 511.9 511.9"
-         :on-click #(evt/process-event :new-game board)}
+         :on-click #(evt/update-board-state! :new-game board)}
    [:path {:fill "#00B89C" :d "M255.9,35C134,35,35.2,133.8,35.2,255.6c0,2.8,0.1,5.6,0.2,8.5c-12.8,1.7-22.8,12.6-22.8,25.9c0,14.5,11.7,26.2,26.2,26.2h4.8C70,408.6,155,476.3,255.9,476.3c121.8,0,220.6-98.8,220.6-220.6C476.5,133.8,377.7,35,255.9,35z"}]
    [:path {:fill "#009E83" :d "M476.3,264.1c0.1-2.8,0.2-5.6,0.2-8.5c0-58.9-23.1-112.4-60.8-152c21.3,34.5,33.6,75.2,33.6,118.8c0,125.2-101.5,226.6-226.7,226.6c-43.6,0-84.2-12.3-118.8-33.6c39.6,37.7,93.1,60.9,152,60.9c100.8,0,185.8-67.7,212.1-160.1h4.8c14.5,0,26.2-11.7,26.2-26.2C499,276.6,489.1,265.8,476.3,264.1z"}]
    [:path {:fill "#009E83" :d "M408.9,157.4c-2.1,0-4.2-0.9-5.8-2.6c-13.2-15-31.6-19.2-48-11c-3.8,1.9-8.4,0.3-10.3-3.5c-1.9-3.8-0.3-8.4,3.5-10.3c22.9-11.4,48.3-5.8,66.4,14.6c2.8,3.2,2.5,8-0.7,10.9C412.6,156.7,410.7,157.4,408.9,157.4z"}]
@@ -124,7 +125,6 @@
      (cond
        (game/game-won? @board) "You won!"
        (game/game-lost? @board) "Aw man! You lost!"
-       (not (game/flags-left? @board)) "Looks like you messed up somewhere."
        :else (str (- mine-count flag-count) " to go"))]))
 
 (defn grid [board]
