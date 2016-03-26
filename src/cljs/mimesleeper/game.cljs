@@ -111,6 +111,31 @@
         mine-coords (get-block-coords board :mine?)]
     (pos? (- (count mine-coords) (count flags-coords)))))
 
+(defn all-unrevealed?
+  "True if every coordinate is currently unrevealed, false otherwise."
+  [board]
+  (every? (fn [[row col]]
+            (= :not-revealed (get-in board [row col :block-state])))
+          (board-coords board)))
+
+(defn traverse-coords
+  "Given a starting set of coords, recursively traverse the
+  coordinates stopping when the a block is adjacent to at
+  least one mine."
+  ([board row col] (traverse-coords board [[row col]]))
+  ([board initial-coords]
+   (loop [coords-to-traverse initial-coords
+          coords-traversed #{}]
+     (if (not (seq coords-to-traverse))
+       coords-traversed
+       (let [[cur-row cur-col] (first coords-to-traverse)]
+         (if (pos? (get-in board [cur-row cur-col :adjacent-mine-cnt]))
+           (recur (rest coords-to-traverse) (conj coords-traversed [cur-row cur-col]))
+           (let [coords-to-traverse' (concat (rest coords-to-traverse)
+                                             (map :coord (surrounding-blocks board cur-row cur-col)))]
+             (recur (vec (difference (set coords-to-traverse') coords-traversed))
+                    (conj coords-traversed [cur-row cur-col])))))))))
+
 (defn- fully-flagged?
   "Used when trying to quick-clear coordinates. Quick-clearing
   can only be used if a coordinate has flags adjacent to at least
@@ -132,28 +157,6 @@
     (->> (surrounding-blocks board row col)
          (filter (fn [sb]
                    (= (get-in sb [:block :block-state]) :not-revealed)))
-         (map :coord))))
+         (map :coord)
+         (traverse-coords board))))
 
-(defn all-unrevealed?
-  "True if every coordinate is currently unrevealed, false otherwise."
-  [board]
-  (every? (fn [[row col]]
-            (= :not-revealed (get-in board [row col :block-state])))
-          (board-coords board)))
-
-(defn traverse-coords
-  "Given a starting [row col], recursively traverse the
-  coordinates stopping when the a block is adjacent to at
-  least one mine."
-  [board row col]
-  (loop [blocks-to-traverse [[row col]]
-         blocks-traversed #{}]
-    (if (not (seq blocks-to-traverse))
-      blocks-traversed
-      (let [[cur-row cur-col] (first blocks-to-traverse)]
-        (if (pos? (get-in board [cur-row cur-col :adjacent-mine-cnt]))
-          (recur (rest blocks-to-traverse) (conj blocks-traversed [cur-row cur-col]))
-          (let [blocks-to-traverse' (concat (rest blocks-to-traverse)
-                                           (map :coord (surrounding-blocks board cur-row cur-col)))]
-            (recur (vec (difference (set blocks-to-traverse') blocks-traversed))
-                   (conj blocks-traversed [cur-row cur-col]))))))))
