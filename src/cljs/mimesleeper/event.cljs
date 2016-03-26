@@ -21,7 +21,7 @@
           board
           coords))
 
-(defn reveal-block [board row col]
+(defn reveal-block! [board row col]
   (let [new-board (if (get-in @board [row col :mine?])
                     (-> (assoc-in @board [row col :stepped-on-mine?] true)
                         (reveal-coords (game/get-block-coords @board :mine?)))
@@ -33,7 +33,7 @@
 
 
 (defmethod update-board-state! :reveal-block [_ board row col]
-  (reveal-block board row col))
+  (reveal-block! board row col))
 
 (defmethod update-board-state! :toggle-block-state [_ board row col]
   (let [new-board (update-in @board
@@ -66,7 +66,7 @@
         cols (count (first @board))
         num-mines (count (game/get-block-coords @board :mine?))]
     (reset! board (game/generate-board rows cols num-mines [row col]))
-    (reveal-block board row col)))
+    (reveal-block! board row col)))
 
 
 (defmethod update-board-state! :new-game [_ board]
