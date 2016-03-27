@@ -9,7 +9,7 @@
                             (and (= :reveal-block event) (game/all-unrevealed? @board)) :generate-board
                             :else event)))
 
-(defn reveal-block! [board row col]
+(defn- reveal-block! [board row col]
   (let [new-board (if (get-in @board [row col :mine?])
                     (-> (assoc-in @board [row col :stepped-on-mine?] true)
                         (game/update-block-coords
@@ -43,10 +43,10 @@
   (let [quick-clear-coords (game/quick-clear-coords @board row col)
         mine-coords (filter (fn [[row' col']]
                               (get-in @board [row' col' :mine?])) quick-clear-coords)
-        all-mine-coords (when (seq mine-coords) (game/get-block-coords @board :mine?))]
+        maybe-all-mine-coords (when (seq mine-coords) (game/get-block-coords @board :mine?))]
     (as-> @board $
           (game/update-block-coords $ #(assoc % :stepped-on-mine? true) mine-coords)
-          (game/update-block-coords $ #(assoc % :block-state :revealed) (concat quick-clear-coords all-mine-coords))
+          (game/update-block-coords $ #(assoc % :block-state :revealed) (concat quick-clear-coords maybe-all-mine-coords))
           (reset! board $))))
 
 (defmethod update-board-state! :game-lost [_ board row col]
