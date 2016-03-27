@@ -26,16 +26,29 @@
     (vec (for [_ (range rows)]
            initial-row))))
 
+(defn get-block-coords
+  "Returns a sequence of coordinates that satisfy block-pred."
+  [board block-pred]
+  (filter (fn [[row col]]
+            (block-pred (get-in board [row col])))
+          (board-coords board)))
+
+(defn update-block-coords
+  "Updates the coordinates using update-fn."
+  [board update-fn coords]
+  (reduce (fn [board' [row col]]
+            (let [block (get-in board' [row col])]
+              (assoc-in board' [row col] (update-fn block))))
+          board
+          coords))
+
 (defn add-mines
   "Given a board, add mines to random coordinates."
   ([board num-mines] (add-mines board num-mines []))
   ([board num-mines exclude-coord]
    (let [board-coords (remove #(= exclude-coord %) (board-coords board))
          rand-coords (take num-mines (shuffle board-coords))]
-     (reduce (fn [board [row col]]
-               (assoc-in board [row col :mine?] true))
-             board
-             rand-coords))))
+     (update-block-coords board #(assoc % :mine? true) rand-coords))))
 
 (defn- surrounding-coords
   "Given a coordinate, return the surrounding coordinates.
@@ -78,22 +91,6 @@
    (-> (init-board rows cols)
        (add-mines num-mines exclude-coord)
        (update-adjacent-mine-count))))
-
-(defn get-block-coords
-  "Returns a sequence of coordinates that satisfy block-pred."
-  [board block-pred]
-  (filter (fn [[row col]]
-            (block-pred (get-in board [row col])))
-          (board-coords board)))
-
-(defn update-block-coords
-  "Updates the coordinates using update-fn."
-  [board update-fn coords]
-  (reduce (fn [board' [row col]]
-            (let [block (get-in board' [row col])]
-              (assoc-in board' [row col] (update-fn block))))
-          board
-          coords))
 
 (defn game-won?
   "True if all of the flags are dropped on every mine and all
