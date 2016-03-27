@@ -37,7 +37,7 @@
              board
              rand-coords))))
 
-(defn surrounding-coords
+(defn- surrounding-coords
   "Given a coordinate, return the surrounding coordinates.
   Note that the coordinates may not exist if you applied
   them to a board."
