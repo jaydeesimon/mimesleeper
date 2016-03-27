@@ -26,6 +26,10 @@
     (vec (for [_ (range rows)]
            initial-row))))
 
+(defn- block-state= [block-state]
+  (fn [block]
+    (= (:block-state block) block-state)))
+
 (defn get-block-coords
   "Returns a sequence of coordinates that satisfy block-pred."
   [board block-pred]
@@ -85,7 +89,7 @@
 
 (defn generate-board
   "Generate a board intended for a new game."
-  ([] (generate-board 30 16 99 []))
+  ([] (generate-board 16 30 99 []))
   ([rows cols num-mines] (generate-board rows cols num-mines []))
   ([rows cols num-mines exclude-coord]
    (-> (init-board rows cols)
@@ -96,10 +100,10 @@
   "True if all of the flags are dropped on every mine and all
   of the blocks that are not mines are revealed."
   [board]
-  (let [flags-coords (get-block-coords board #(= (:block-state %) :flag))
+  (let [flags-coords (get-block-coords board (block-state= :flag))
         mine-coords (get-block-coords board :mine?)
-        not-mine-coords (get-block-coords board #(not (:mine? %)))
-        revealed-coords (get-block-coords board #(= (:block-state %) :revealed))]
+        not-mine-coords (get-block-coords board (complement :mine?))
+        revealed-coords (get-block-coords board (block-state= :revealed))]
     (and
       (= (set flags-coords) (set mine-coords))
       (= (set revealed-coords) (set not-mine-coords)))))
@@ -113,7 +117,7 @@
 (defn flags-left?
   "True if there are flags available to mark a block, false otherwise."
   [board]
-  (let [flags-coords (get-block-coords board #(= (:block-state %) :flag))
+  (let [flags-coords (get-block-coords board (block-state= :flag))
         mine-coords (get-block-coords board :mine?)]
     (pos? (- (count mine-coords) (count flags-coords)))))
 
