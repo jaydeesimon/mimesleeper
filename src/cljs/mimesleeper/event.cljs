@@ -6,7 +6,7 @@
                             (= :new-game event) :new-game
                             (game/game-won? @board) :game-won
                             (game/game-lost? @board) :game-lost
-                            (and (= :reveal-block event) (game/all-unrevealed? @board)) :generate-board
+                            (and (= :reveal-block event) (game/all-unrevealed? @board)) :first-move
                             :else event)))
 
 (defn- reveal-block! [board row col]
@@ -55,7 +55,7 @@
 (defmethod update-board-state! :game-won [_ board row col]
   board)
 
-(defmethod update-board-state! :generate-board [_ board row col]
+(defmethod update-board-state! :first-move [_ board row col]
   (let [rows (count @board)
         cols (count (first @board))
         num-mines (count (game/get-block-coords @board :mine?))]
