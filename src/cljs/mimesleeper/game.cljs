@@ -114,8 +114,7 @@
 (defn game-lost?
   "True if a mine is revealed, false otherwise."
   [board]
-  (seq (get-block-coords board #(and (:mine? %)
-                                     (= (:block-state %) :revealed)))))
+  (seq (get-block-coords board (every-pred :mine? (block-state= :revealed)))))
 
 (defn flags-left?
   "True if there are flags available to mark a block, false otherwise."
