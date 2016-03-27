@@ -72,7 +72,7 @@
 
 (defn generate-board
   "Generate a board intended for a new game."
-  ([] (generate-board 16 30 85 []))
+  ([] (generate-board 30 16 99 []))
   ([rows cols num-mines] (generate-board rows cols num-mines []))
   ([rows cols num-mines exclude-coord]
    (-> (init-board rows cols)
@@ -85,6 +85,15 @@
   (filter (fn [[row col]]
             (block-pred (get-in board [row col])))
           (board-coords board)))
+
+(defn update-block-coords
+  "Updates the coordinate using update-fn."
+  [board update-fn coords]
+  (reduce (fn [board' [row col]]
+            (let [block (get-in board' [row col])]
+              (assoc-in board' [row col] (update-fn block))))
+          board
+          coords))
 
 (defn game-won?
   "True if all of the flags are dropped on every mine and all
@@ -159,4 +168,3 @@
                    (= (get-in sb [:block :block-state]) :not-revealed)))
          (map :coord)
          (traverse-coords board))))
-
