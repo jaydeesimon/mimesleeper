@@ -88,7 +88,10 @@
           (board-coords board)))
 
 (defn generate-board
-  "Generate a board intended for a new game."
+  "Generate a board intended for a new game. Alternatively,
+  a coordinate can be passed in which will guarantee that
+  that coordinate will not be a mine. This is to support the
+  rule that the first move a player makes will be safe."
   ([] (generate-board 16 30 99 []))
   ([rows cols num-mines] (generate-board rows cols num-mines []))
   ([rows cols num-mines exclude-coord]

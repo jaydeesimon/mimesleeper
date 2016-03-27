@@ -1,13 +1,15 @@
 (ns mimesleeper.event
   (:require [mimesleeper.game :as game]))
 
-(defmulti update-board-state! (fn [event board row col]
-                          (cond
-                            (= :new-game event) :new-game
-                            (game/game-won? @board) :game-won
-                            (game/game-lost? @board) :game-lost
-                            (and (= :reveal-block event) (game/all-unrevealed? @board)) :first-move
-                            :else event)))
+(defmulti update-board-state!
+          "Routes an event to a method that will update the state of the board."
+          (fn [event board row col]
+            (cond
+              (= :new-game event) :new-game
+              (game/game-won? @board) :game-won
+              (game/game-lost? @board) :game-lost
+              (and (= :reveal-block event) (game/all-unrevealed? @board)) :first-move
+              :else event)))
 
 (defn- reveal-block! [board row col]
   (let [new-board (if (get-in @board [row col :mine?])
