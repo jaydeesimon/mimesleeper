@@ -87,7 +87,7 @@
           (board-coords board)))
 
 (defn update-block-coords
-  "Updates the coordinate using update-fn."
+  "Updates the coordinates using update-fn."
   [board update-fn coords]
   (reduce (fn [board' [row col]]
             (let [block (get-in board' [row col])]
