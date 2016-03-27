@@ -7,7 +7,7 @@
 ;;   2. :adjacent-mine-cnt The sum of the blocks touching this block
 ;;      that are mines.
 ;;   3. :mine? Is this block a mine?
-;;   4. :stepped-on-mine? Will be true if the block clicked is a mine.
+;;   4. :stepped-on-mine? (optional) Will be true if the block clicked is a mine.
 
 (defn board-coords
   "A list of all of the coordinates of a board in the form [row col]."
