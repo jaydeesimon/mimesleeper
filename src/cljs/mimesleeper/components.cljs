@@ -118,7 +118,7 @@
    [:path {:fill "#F2A74E" :d "M387.2,286.6h-44.1c-4.2,0-7.6-3.4-7.6-7.6s3.4-7.6,7.6-7.6h44.1c4.2,0,7.6,3.4,7.6,7.6S391.4,286.6,387.2,286.6z"}]])
 
 (defn game-status [board]
-  (let [flag-count (count (game/get-block-coords @board #(= (:block-state %) :flag)))
+  (let [flag-count (count (game/get-block-coords @board (game/block-state= :flag)))
         mine-count (count (game/get-block-coords @board :mine?))]
     [:span {:id "game-status"}
      (cond

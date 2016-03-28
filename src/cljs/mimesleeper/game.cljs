@@ -26,7 +26,10 @@
     (vec (for [_ (range rows)]
            initial-row))))
 
-(defn- block-state= [block-state]
+(defn block-state=
+  "Convenient function to use with get-block-coords
+  when querying for block-state."
+  [block-state]
   (fn [block]
     (= (:block-state block) block-state)))
 
